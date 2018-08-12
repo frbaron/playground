@@ -9,6 +9,9 @@ import (
     "flag"
 )
 
+// We need a small utility to remove dodgy endings in file names
+// Usually coming from internet sources each with their own extensions, tags..
+
 func main() {
 
     // Managing global values and expose as CLI parameters 
@@ -33,20 +36,28 @@ func main() {
 	dirname	= *pDir;
     }
 
+    // Display the options used in processing below
     fmt.Println(weed)
     fmt.Println(filePtr)
     fmt.Println(dirname)
-	
+
+    // Open the target folder
     f, err := os.Open(dirname)
     if err != nil {
         log.Fatal(err)
     }
+
+    // Build a list of all files in that folder
     files, err := f.Readdir(-1)
     f.Close()
     if err != nil {
         log.Fatal(err)
     }
 
+    // Go through each file and
+    // 1- confirm it is matching our pattern
+    // 2- process the weeding out bad strings to compute cleaner name
+    // 3- rename the file to the new name (if changed)
     for _, file := range files {
 	oldname := file.Name()
 
