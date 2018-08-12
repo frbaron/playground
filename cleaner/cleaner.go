@@ -10,20 +10,45 @@ import (
     "flag"
 )
 
+// Function which is getting a name of a file, removing any extensions, normalising as well
+// Input  : "Black.Panther.HDTV.BRRip.2017.mp4"
+// Output : "Black Panther.mp4"
+
 func Weeder(fileName string, weed string) (string) {
 
-	//file := regexp.MustCompile(`\.\S{3,4}`)
+	// initiate our return variable
+	newname := fileName
 
-	// Building up a list of strings to catch and weed out of the filename
-	s := []string{ "(" , weed , ")" }
-	repl := strings.Join( s, "" )
-	re := regexp.MustCompile(repl)
+	// Breaking down filename in clear parts
+	re := regexp.MustCompile(`^(.*)\.(\S{3,4})$`)
+	findings := re.FindStringSubmatch(fileName)
 
-	newname := re.ReplaceAllString(fileName, "")
+	if findings != nil {
+		baseName:= findings[1]
+		ext	:= findings[2]
 
-	// clearing out trailing space
-	re = regexp.MustCompile(`\s+(\.\S{3,4})$`)
-	newname = re.ReplaceAllString(newname, "$1")
+		// Replace any "." by a space
+		re = regexp.MustCompile(`\.`)
+		baseName = re.ReplaceAllString(baseName, " ")
+
+		// Main weeding out work... based on parameter
+		// Building up the regexp "(string)" to weed out of the filename
+		s := []string{ "(" , weed , ")" }
+		repl := strings.Join( s, "" )
+		re = regexp.MustCompile(repl)
+		baseName = re.ReplaceAllString(baseName, "")
+
+		// Removing duplicate spaces
+		re = regexp.MustCompile(`\s+`)
+		baseName = re.ReplaceAllString(baseName, " ")
+
+		// Removing any trailing space
+		re = regexp.MustCompile(`\s+$`)
+		baseName = re.ReplaceAllString(baseName, "")
+
+		// Reconstruct the filename
+		newname = strings.Join( []string{ baseName, ".", ext}, "" )
+	}
 
 	return newname
 }
