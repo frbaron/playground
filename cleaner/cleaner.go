@@ -6,8 +6,27 @@ import (
     "log"
     "os"
     "regexp"
+    "strings"
     "flag"
 )
+
+func Weeder(fileName string, weed string) (string) {
+
+	//file := regexp.MustCompile(`\.\S{3,4}`)
+
+	// Building up a list of strings to catch and weed out of the filename
+	s := []string{ "(" , weed , ")" }
+	repl := strings.Join( s, "" )
+	re := regexp.MustCompile(repl)
+
+	newname := re.ReplaceAllString(fileName, "")
+
+	// clearing out trailing space
+	re = regexp.MustCompile(`\s+(\.\S{3,4})$`)
+	newname = re.ReplaceAllString(newname, "$1")
+
+	return newname
+}
 
 // We need a small utility to remove dodgy endings in file names
 // Usually coming from internet sources each with their own extensions, tags..
@@ -66,9 +85,10 @@ func main() {
 	if fileMatch {
 		fmt.Println(file.Name())
 
-		re := regexp.MustCompile(weed)
-		newname := re.ReplaceAllLiteralString(oldname, "")
+		//re := regexp.MustCompile(weed)
+		//newname := re.ReplaceAllLiteralString(oldname, "")
 
+		newname := Weeder(oldname, weed)
 		if newname != oldname {
 			fmt.Println(">>", newname)
 			err :=	os.Rename(oldname, newname)
