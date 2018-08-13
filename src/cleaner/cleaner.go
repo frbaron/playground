@@ -53,40 +53,15 @@ func Weeder(fileName string, weed string) (string) {
 	return newname
 }
 
-// We need a small utility to remove dodgy endings in file names
-// Usually coming from internet sources each with their own extensions, tags..
-
-func main() {
-
-    // Managing global values and expose as CLI parameters 
-    dirname	:= "."	 // folder where to list and clean files
-    filePtr	:= "*"	 // pattern to only modify files matching that pattern
-    weed	:= "WebRip" // example string to weed out of file name
-
-    var pWeed	= flag.String("weed",	"HDTV",	"String you want to weed out of all files in folder")
-    var pFile	= flag.String("file",	"*",	"Pattern to only rename files matching this. Defauly: all files")
-    var pDir	= flag.String("dirname",".",	"Exact directory path where to rename files. Default: current folder")
-
-    // Parsing the command line arguments as defined above
-    flag.Parse()
-
-    if pWeed != nil {
-	weed	= *pWeed;
-    }
-    if pFile != nil {
-	filePtr	= *pFile;
-    }
-    if pDir != nil {
-	dirname	= *pDir;
-    }
+func Scanner(dirName string, filePtr string, weed string) {
 
     // Display the options used in processing below
     fmt.Println(weed)
     fmt.Println(filePtr)
-    fmt.Println(dirname)
+    fmt.Println(dirName)
 
     // Open the target folder
-    f, err := os.Open(dirname)
+    f, err := os.Open(dirName)
     if err != nil {
         log.Fatal(err)
     }
@@ -114,17 +89,54 @@ func main() {
 		//newname := re.ReplaceAllLiteralString(oldname, "")
 
 		newname := Weeder(oldname, weed)
-		if newname != oldname {
-			fmt.Println(">>", newname)
-			err :=	os.Rename(oldname, newname)
-			if err != nil {
-				log.Fatal(err)
+
+		// Check if file already exists before renaming/overwriting it
+		fileInfo, _ := os.Stat( dirName + "/" + newname )
+
+		if fileInfo == nil {
+			if newname != oldname {
+				fmt.Println(">>", newname)
+				err :=	os.Rename(dirName+"/"+oldname, dirName+"/"+newname)
+				if err != nil {
+					log.Fatal(err)
+				}
+			} else {
+				fmt.Println("Nothing to clean", oldname)
 			}
 		} else {
-			fmt.Println("Nothing to clean", oldname)
+			fmt.Println("File already exists:", newname)
 		}
     	}
     }
+}
+ 
+// We need a small utility to remove dodgy endings in file names
+// Usually coming from internet sources each with their own extensions, tags..
 
+func main() {
+
+    // Managing global values and expose as CLI parameters 
+    dirName	:= "."	 // folder where to list and clean files
+    filePtr	:= "*"	 // pattern to only modify files matching that pattern
+    weed	:= "WebRip" // example string to weed out of file name
+
+    var pWeed	= flag.String("weed",	"HDTV",	"String you want to weed out of all files in folder")
+    var pFile	= flag.String("file",	"*",	"Pattern to only rename files matching this. Defauly: all files")
+    var pDir	= flag.String("dirName",".",	"Exact directory path where to rename files. Default: current folder")
+
+    // Parsing the command line arguments as defined above
+    flag.Parse()
+
+    if pWeed != nil {
+	weed	= *pWeed;
+    }
+    if pFile != nil {
+	filePtr	= *pFile;
+    }
+    if pDir != nil {
+	dirName	= *pDir;
+    }
+
+    Scanner(dirName, filePtr, weed)
 }
 
