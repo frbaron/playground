@@ -53,12 +53,18 @@ func Weeder(fileName string, weed string) (string) {
 	return newname
 }
 
+func printInfo(msg string) {
+	if bVerbose > 0 {
+		fmt.Println(msg)
+	}
+}
+
 func Scanner(dirName string, filePtr string, weed string) {
 
     // Display the options used in processing below
-    fmt.Println(weed)
-    fmt.Println(filePtr)
-    fmt.Println(dirName)
+    printInfo(weed)
+    printInfo(filePtr)
+    printInfo(dirName)
 
     // Open the target folder
     f, err := os.Open(dirName)
@@ -81,62 +87,69 @@ func Scanner(dirName string, filePtr string, weed string) {
 	oldname := file.Name()
 
 	fileMatch, _ := regexp.MatchString(filePtr, oldname)
-	
+
 	if fileMatch {
-		fmt.Println(file.Name())
+		printInfo(file.Name())
 
 		//re := regexp.MustCompile(weed)
 		//newname := re.ReplaceAllLiteralString(oldname, "")
 
 		newname := Weeder(oldname, weed)
 
-		// Check if file already exists before renaming/overwriting it
-		fileInfo, _ := os.Stat( dirName + "/" + newname )
+		if newname != oldname {
+			// Check if file already exists before renaming/overwriting it
+			fileInfo, _ := os.Stat( dirName + "/" + newname )
 
-		if fileInfo == nil {
-			if newname != oldname {
-				fmt.Println(">>", newname)
+			if fileInfo == nil {
+				printInfo(">>" + newname)
 				err :=	os.Rename(dirName+"/"+oldname, dirName+"/"+newname)
 				if err != nil {
 					log.Fatal(err)
 				}
 			} else {
-				fmt.Println("Nothing to clean", oldname)
+				printInfo("File already exists:" + newname)
 			}
 		} else {
-			fmt.Println("File already exists:", newname)
+			printInfo("Nothing to clean" + oldname)
 		}
     	}
     }
 }
- 
+
+
+// Global flag to display progress messages (silent by default)
+var bVerbose int = 0
+
 // We need a small utility to remove dodgy endings in file names
 // Usually coming from internet sources each with their own extensions, tags..
 
 func main() {
 
-    // Managing global values and expose as CLI parameters 
-    dirName	:= "."	 // folder where to list and clean files
-    filePtr	:= "*"	 // pattern to only modify files matching that pattern
-    weed	:= "WebRip" // example string to weed out of file name
+  // Managing global values and expose as CLI parameters
+  dirName	:= "."	 // folder where to list and clean files
+  filePtr	:= "*"	 // pattern to only modify files matching that pattern
+  weed	:= "WebRip" // example string to weed out of file name
 
-    var pWeed	= flag.String("weed",	"HDTV",	"String you want to weed out of all files in folder")
-    var pFile	= flag.String("file",	"*",	"Pattern to only rename files matching this. Defauly: all files")
-    var pDir	= flag.String("dirName",".",	"Exact directory path where to rename files. Default: current folder")
+  var pVerb	= flag.Int("v",		0,	"Boolean option to activate display of progress messages")
+  var pWeed	= flag.String("weed",	"HDTV",	"String you want to weed out of all files in folder")
+  var pFile	= flag.String("file",	"*",	"Pattern to only rename files matching this. Defauly: all files")
+  var pDir	= flag.String("dirName",".",	"Exact directory path where to rename files. Default: current folder")
 
-    // Parsing the command line arguments as defined above
-    flag.Parse()
+  // Parsing the command line arguments as defined above
+  flag.Parse()
 
-    if pWeed != nil {
-	weed	= *pWeed;
-    }
-    if pFile != nil {
-	filePtr	= *pFile;
-    }
-    if pDir != nil {
-	dirName	= *pDir;
-    }
+  if pVerb != nil {
+    bVerbose = *pVerb;
+  }
+  if pDir != nil {
+    dirName	= *pDir;
+  }
+  if pFile != nil {
+    filePtr	= *pFile;
+  }
+  if pWeed != nil {
+    weed	= *pWeed;
+  }
 
-    Scanner(dirName, filePtr, weed)
+  Scanner(dirName, filePtr, weed)
 }
-
