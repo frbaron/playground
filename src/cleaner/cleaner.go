@@ -101,7 +101,7 @@ func Scanner(dirName string, filePtr string, weed string) {
 			fileInfo, _ := os.Stat( dirName + "/" + newname )
 
 			if fileInfo == nil {
-				printInfo(">>" + newname)
+				fmt.Println(">>" + newname)
 				err :=	os.Rename(dirName+"/"+oldname, dirName+"/"+newname)
 				if err != nil {
 					log.Fatal(err)
