@@ -54,7 +54,7 @@ func Weeder(fileName string, weed string) (string) {
 }
 
 func printInfo(msg string) {
-	if bVerbose > 0 {
+	if bVerbose {
 		fmt.Println(msg)
 	}
 }
@@ -118,7 +118,7 @@ func Scanner(dirName string, filePtr string, weed string) {
 
 
 // Global flag to display progress messages (silent by default)
-var bVerbose int = 0
+var bVerbose bool
 
 // We need a small utility to remove dodgy endings in file names
 // Usually coming from internet sources each with their own extensions, tags..
@@ -127,12 +127,13 @@ func main() {
 
   // Managing global values and expose as CLI parameters
   dirName	:= "."	 // folder where to list and clean files
-  filePtr	:= "*"	 // pattern to only modify files matching that pattern
+  filePtr	:= ".*"	 // pattern to only modify files matching that pattern
   weed	:= "WebRip" // example string to weed out of file name
 
-  var pVerb	= flag.Int("v",		0,	"Boolean option to activate display of progress messages")
+  // Initialisation of default values is done in the lines below
+  var pVerb	= flag.Bool("v",	false,	"Boolean option to activate display of progress messages")
   var pWeed	= flag.String("weed",	"HDTV",	"String you want to weed out of all files in folder")
-  var pFile	= flag.String("file",	"*",	"Pattern to only rename files matching this. Defauly: all files")
+  var pFile	= flag.String("file",	".*",	"Pattern to only rename files matching this. Defauly: all files")
   var pDir	= flag.String("dirName",".",	"Exact directory path where to rename files. Default: current folder")
 
   // Parsing the command line arguments as defined above
