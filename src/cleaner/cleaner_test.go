@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"flag"
 )
 
 var dirName string
@@ -110,4 +111,28 @@ func TestScanner(t *testing.T) {
 
 func TestMain(t *testing.T) {
 
+	var pDir *string
+	var pFile *string
+	var pWeed *string
+
+//	fs := flag.NewFlagSet()
+
+	flag.Parse()
+
+	dirName := "."
+	filePtr := ".*"
+	weed:=""
+
+	if pDir != nil {
+		dirName = *pDir;
+	}
+	if pFile != nil {
+		filePtr	= *pFile;
+	}
+	if pWeed != nil {
+		weed	= *pWeed;
+	}
+
+	//fmt.Println("Main() = dir=%s, file=%s weed=%s", dirName, filePtr, weed )
+	fmt.Println("Main() = dir=[", dirName, "], file=[", filePtr , "], weed=[",  weed, "]" )
 }
